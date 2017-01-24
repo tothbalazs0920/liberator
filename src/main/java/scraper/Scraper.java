@@ -13,45 +13,85 @@ import java.util.Set;
 public class Scraper {
 
     private final Set<String> checkedItems;
-    int count = 0;
 
     public Scraper() {
         checkedItems = new HashSet<String>();
     }
 
-    public void scrape(String item, double threshold) {
-        try {
-            Document doc = Jsoup.connect("http://www.dba.dk/soeg/?soeg=" + item).get();
-            Elements dbaListings = doc.getElementsByClass("dbaListing");
 
-            for (Element dbaListing : dbaListings) {
-                String url = getMainContent(dbaListing);
-                if(url == null){
-                    continue;
-                }
-                if(!isItemRelevant(url, item)) {
-                    continue;
-                }
-                double price = getPrice(dbaListing);
-                if(price > threshold) {
-                    continue;
-                }
-                System.out.println("Send sms with " + url );
-                count++;
+    public static void main(String[] args) {
+
+        String url = "http://www.dba.dk/soeg/?soeg=vox";
+        String item = "vox";
+        double threshold = 5000;
+        Scraper scraper = new Scraper();
+        while (1 == 1) {
+            scraper.scrape(scraper.connect(url, item), item, threshold);
+            try {
+                Thread.sleep(3000);
+            } catch (Exception ex) {
+                System.out.println(ex.getMessage());
+                continue;
             }
+        }
+    }
+
+
+    Document connect(String url, String item) {
+        try {
+            return Jsoup.connect(url + item).get();
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
+            return null;
         }
-        System.out.println(count);
+    }
+
+
+    public int scrape(Document doc, String item, double threshold) {
+        if (doc == null) {
+            return 0;
+        }
+
+        Elements dbaListings = getDbaListings(doc);
+        if (dbaListings == null) {
+            return 0;
+        }
+        int count = 0;
+        for (Element dbaListing : dbaListings) {
+            String mainContent = dbaListing.getElementsByTag("script").get(0).dataNodes().get(0).getWholeData();
+            mainContent = mainContent.replace("\r\n", "");
+            String url = getMainContent(dbaListing);
+            if (url == null) {
+                continue;
+            }
+            if (!isItemRelevant(url, item)) {
+                continue;
+            }
+            double price = getPrice(dbaListing);
+            if (price > threshold) {
+                continue;
+            }
+            System.out.println("Send sms with " + url);
+            count++;
+        }
+        return count;
+    }
+
+    Elements getDbaListings(Document doc) {
+        if (doc.getElementsByClass("dbaListing") != null) {
+            return doc.getElementsByClass("dbaListing");
+        }
+        return null;
     }
 
     double convertPrice(String price) {
         try {
-            return Double.parseDouble(price.replaceAll("\\D+", ""));
+            String amount = price.replaceAll("\\D+", "");
+            return Double.parseDouble(amount);
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
+            return Double.MAX_VALUE;
         }
-        return Double.MAX_VALUE;
     }
 
     double getPrice(Element dbaListing) {
@@ -61,18 +101,31 @@ public class Scraper {
                 .childNode(0) != null
                 && dbaListing.getElementsByAttributeValue("title", "Pris").get(0)
                 .childNode(0).toString() != null) {
-            return convertPrice(dbaListing
+            double amount = convertPrice(dbaListing
+                    .getElementsByAttributeValue("title", "Pris")
+                    .get(0)
+                    .childNode(0)
+                    .toString());
+            if(amount > 100000) {
+                if (dbaListing.getElementsByAttributeValue("title", "Pris").get(0)
+                        .childNode(0).childNode(0) != null) {
+                    return convertPrice(dbaListing
                             .getElementsByAttributeValue("title", "Pris")
                             .get(0)
                             .childNode(0)
+                            .childNode(0)
                             .toString());
+                }
+            }
+            return amount;
         }
         return Double.MAX_VALUE;
     }
 
+
     String getMainContent(Element dbaListing) {
-        if( dbaListing.getElementsByClass("listingLink") != null
-                &&  dbaListing.getElementsByClass("listingLink").get(0) != null) {
+        if (dbaListing.getElementsByClass("listingLink") != null
+                && dbaListing.getElementsByClass("listingLink").get(0) != null) {
             return dbaListing.getElementsByClass("listingLink").get(0).attr("href");
         }
         return null;
@@ -83,7 +136,7 @@ public class Scraper {
     }
 
     boolean isItemRelevant(String url, String item) {
-        if(!checkedItems.contains(url) && url.contains(item)) {
+        if (!checkedItems.contains(url) && url.contains(item)) {
             saveToDb(url, item);
             return true;
         }
