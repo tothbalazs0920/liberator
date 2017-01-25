@@ -1,5 +1,8 @@
 package scraper;
 
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -18,7 +21,6 @@ public class Scraper {
         checkedItems = new HashSet<String>();
     }
 
-
     public static void main(String[] args) {
 
         String url = "http://www.dba.dk/soeg/?soeg=vox";
@@ -36,7 +38,6 @@ public class Scraper {
         }
     }
 
-
     Document connect(String url, String item) {
         try {
             return Jsoup.connect(url + item).get();
@@ -45,7 +46,6 @@ public class Scraper {
             return null;
         }
     }
-
 
     public int scrape(Document doc, String item, double threshold) {
         if (doc == null) {
@@ -58,16 +58,32 @@ public class Scraper {
         }
         int count = 0;
         for (Element dbaListing : dbaListings) {
-            String mainContent = dbaListing.getElementsByTag("script").get(0).dataNodes().get(0).getWholeData();
-            mainContent = mainContent.replace("\r\n", "");
-            String url = getMainContent(dbaListing);
+            String url = null;
+            String name = null;
+            double price = Double.MAX_VALUE;
+            Listing listing = getListing(dbaListing);
+            if (listing != null) {
+                if (listing.getName() != null) {
+                    name = listing.getName();
+                }
+                if (listing.getUrl() != null) {
+                    url = listing.getUrl();
+                } else {
+                    url = getUrl(dbaListing);
+                }
+                if (listing.getOffers() != null
+                        && listing.getOffers().getPrice() != null) {
+                    price = convertPrice(listing.getOffers().getPrice());
+                } else {
+                    price = getPrice(dbaListing);
+                }
+            }
             if (url == null) {
                 continue;
             }
-            if (!isItemRelevant(url, item)) {
+            if (!isItemRelevant(url, name, item)) {
                 continue;
             }
-            double price = getPrice(dbaListing);
             if (price > threshold) {
                 continue;
             }
@@ -84,10 +100,15 @@ public class Scraper {
         return null;
     }
 
+    Listing getListing(Element dbaListing) {
+        String mainContent = dbaListing.getElementsByTag("script").get(0).dataNodes().get(0).getWholeData();
+        mainContent = mainContent.replace("\r\n", "");
+        return unMarshalMainContent(mainContent);
+    }
+
     double convertPrice(String price) {
         try {
-            String amount = price.replaceAll("\\D+", "");
-            return Double.parseDouble(amount);
+            return Double.parseDouble(price.replaceAll("\\D+", ""));
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
             return Double.MAX_VALUE;
@@ -106,7 +127,7 @@ public class Scraper {
                     .get(0)
                     .childNode(0)
                     .toString());
-            if(amount > 100000) {
+            if (amount > 100000) {
                 if (dbaListing.getElementsByAttributeValue("title", "Pris").get(0)
                         .childNode(0).childNode(0) != null) {
                     return convertPrice(dbaListing
@@ -123,7 +144,7 @@ public class Scraper {
     }
 
 
-    String getMainContent(Element dbaListing) {
+    String getUrl(Element dbaListing) {
         if (dbaListing.getElementsByClass("listingLink") != null
                 && dbaListing.getElementsByClass("listingLink").get(0) != null) {
             return dbaListing.getElementsByClass("listingLink").get(0).attr("href");
@@ -131,12 +152,28 @@ public class Scraper {
         return null;
     }
 
+    Listing unMarshalMainContent(String mainContent) {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            return mapper.readValue(mainContent, Listing.class);
+        } catch (JsonGenerationException e) {
+            e.printStackTrace();
+            return null;
+        } catch (JsonMappingException e) {
+            e.printStackTrace();
+            return null;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     void saveToDb(String url, String item) {
         checkedItems.add(url);
     }
 
-    boolean isItemRelevant(String url, String item) {
-        if (!checkedItems.contains(url) && url.contains(item)) {
+    boolean isItemRelevant(String url, String name, String item) {
+        if (!checkedItems.contains(url) && (url.contains(item) || name.contains(item))) {
             saveToDb(url, item);
             return true;
         }
