@@ -1,45 +1,14 @@
 package scraper;
 
-
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
-import java.io.IOException;
-
 public class ScraperTest {
 
-    Scraper scraper = new Scraper();
-
-    @Test
-    public void scrape_returns_expected_amount_of_items(){
-        File input = new File("voxListingPage.htm");
-        Document doc = null;
-        try {
-            doc = Jsoup.parse(input, "UTF-8", "http://www.dba.dk/");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        Scraper scraper = new Scraper();
-        int found = scraper.scrape(doc, "vox", 10000);
-        assertEquals(14, found);
-    }
-
-    @Test
-    public void mainTest(){
-        String url = "http://www.dba.dk/soeg/?soeg=";
-        String item = "kemper";
-        double threshold = 10000;
-        Scraper scraper = new Scraper();
-        int found = scraper.scrape(scraper.connect(url, item), item, threshold);
-        System.out.println("");
-    }
-
+    private Scraper scraper = new Scraper();
 
     @Test
     public void isItemRelevant_doesnt_return_multiple_times_for_the_same_url_input(){
