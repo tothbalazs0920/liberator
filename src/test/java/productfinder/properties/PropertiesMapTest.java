@@ -1,4 +1,4 @@
-package properties;
+package productfinder.properties;
 
 
 import org.junit.Test;

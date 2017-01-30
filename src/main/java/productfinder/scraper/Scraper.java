@@ -1,4 +1,4 @@
-package scraper;
+package productfinder.scraper;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -103,18 +103,5 @@ public class Scraper {
             e.printStackTrace();
             return null;
         }
-    }
-
-    void saveToDb(String url, String item) {
-        checkedItems.add(url);
-    }
-
-    public boolean isItemRelevant(String url, String name, String item) {
-        if (!checkedItems.contains(url) && (url.contains(item) || name.contains(item))) {
-            saveToDb(url, item);
-            return true;
-        }
-        saveToDb(url, item);
-        return false;
     }
 }

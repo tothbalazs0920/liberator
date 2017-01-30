@@ -1,4 +1,4 @@
-package scraper;
+package productfinder.scraper;
 
 import org.junit.Test;
 
@@ -10,21 +10,6 @@ public class ScraperTest {
 
     private Scraper scraper = new Scraper();
 
-    @Test
-    public void isItemRelevant_doesnt_return_multiple_times_for_the_same_url_input(){
-        String item = "url";
-        String name = "name";
-        String url1 = "url1";
-        assertTrue(scraper.isItemRelevant(url1, name, item));
-        assertFalse(scraper.isItemRelevant(url1, name, item));
-    }
-
-    @Test
-    public void isItemRelevant_returns_true_if_name_is_null_and_url_is_relevant(){
-        String item = "url";
-        String url1 = "url1";
-        assertTrue(scraper.isItemRelevant(url1, null, item));
-    }
 
     @Test
     public void mainContentUnmarshall_can_unmarsall_json() {

@@ -1,7 +1,7 @@
-package mail;
+package productfinder.mail;
 
 import org.junit.Test;
-import properties.PropertiesMap;
+import productfinder.properties.PropertiesMap;
 
 public class MailTest {
 

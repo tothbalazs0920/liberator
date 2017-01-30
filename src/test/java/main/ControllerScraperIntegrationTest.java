@@ -1,13 +1,14 @@
 package main;
 
 
-import liberator.Controller;
-import mail.Mail;
+import productfinder.dao.ProductDao;
+import productfinder.liberator.Controller;
+import productfinder.mail.Mail;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.Test;
 import org.mockito.Mockito;
-import scraper.Scraper;
+import productfinder.scraper.Scraper;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,7 +23,8 @@ public class ControllerScraperIntegrationTest {
     @Test
     public void process_returns_expected_amount_of_items() {
         Mail mail = Mockito.mock(Mail.class);
-        Controller controller = new Controller(new Scraper(), mail);
+        ProductDao productDao = Mockito.mock(ProductDao.class);
+        Controller controller = new Controller(new Scraper(), mail, productDao);
         File input = new File("voxListingPage.htm");
         Document doc = null;
         try {
