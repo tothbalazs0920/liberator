@@ -1,4 +1,4 @@
-package scraper;
+package productfinder.scraper;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 

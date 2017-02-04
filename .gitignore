@@ -1,3 +1,4 @@
 .idea/
 *.iml
 target/
+src/productfinder.main/resources/config.productfinder.properties
