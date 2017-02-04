@@ -1,8 +1,7 @@
-package main;
+package productfinder.main;
 
 
 import productfinder.dao.ProductDao;
-import productfinder.liberator.Controller;
 import productfinder.mail.Mail;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;

@@ -1,11 +1,14 @@
-package productfinder.liberator;
+package productfinder.main;
 
 import productfinder.dao.ProductDao;
 import productfinder.mail.Mail;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import productfinder.network.Network;
 import productfinder.properties.PropertiesMap;
 import productfinder.scraper.Scraper;
+
+import java.util.Random;
 
 public class Main {
     public static void main(String[] args) {
@@ -19,16 +22,23 @@ public class Main {
         Mail mailSender = new Mail(properties);
         ProductDao productDao = applicationContext.getBean(ProductDao.class);
         Controller controller = new Controller(scraper, mailSender, productDao);
+        Network network = new Network();
+        while (1 == 1) {
+            network.startVpn();
+            Sleep(60000);
+            controller.process(network.connect(url, item), item, threshold);
+            Sleep(60000);
+            network.shutDownVpn();
+            Sleep(580000 + new Random().nextInt(6000));
+        }
+    }
 
-        //while (1 == 1) {
-            controller.process(scraper.connect(url, item), item, threshold);
-            try {
-                Thread.sleep(5000);
-            } catch (Exception ex) {
-                System.out.println(ex.getMessage());
-                //continue;
-            }
-        //}
+    public static void Sleep(int millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
 }

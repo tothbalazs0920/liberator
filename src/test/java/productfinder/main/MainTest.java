@@ -1,4 +1,4 @@
-package main;
+package productfinder.main;
 
 
 import org.junit.Test;

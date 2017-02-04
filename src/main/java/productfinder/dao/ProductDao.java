@@ -5,7 +5,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 
-
 @Component
 public class ProductDao {
 
@@ -25,10 +24,10 @@ public class ProductDao {
                 product.getPostedAt());
     }
 
-    public Product isIdInDb(String id) {
-        String SQL = "select exists(select 1 from product where id=?)";
-        Product message = jdbcTemplateObject.queryForObject(SQL,
-                new Object[]{id.toString()}, productMapper);
-        return message;
+    public boolean isIdInDb(String id) {
+        String SQL = "select count(*) from product where id=?";
+        Integer count = jdbcTemplateObject.queryForObject(
+                SQL, Integer.class, id);
+        return count != null && count > 0;
     }
 }

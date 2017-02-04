@@ -1,11 +1,9 @@
-package main;
+package productfinder.main;
 
 
+import productfinder.dao.Product;
 import productfinder.dao.ProductDao;
-import productfinder.liberator.Controller;
 import productfinder.mail.Mail;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -13,12 +11,12 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import productfinder.scraper.Scraper;
 
-import java.io.File;
-import java.io.IOException;
+import java.sql.Timestamp;
+import java.util.Date;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ControllerUnitTest {
@@ -34,31 +32,35 @@ public class ControllerUnitTest {
     private Controller controller;
 
     @Test
-    public void process_returns_expected_amount_of_items(){
-        File input = new File("voxListingPage.htm");
-        Document doc = null;
-        try {
-            doc = Jsoup.parse(input, "UTF-8", "http://www.dba.dk/");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        int found = controller.process(doc, "vox", 10000);
-        assertEquals(14, found);
-    }
-
-    @Test
     public void isItemRelevant_doesnt_return_multiple_times_for_the_same_url_input(){
         String item = "url";
         String name = "name";
         String url1 = "url1";
-        assertTrue(controller.isItemRelevant(url1, name, item));
-        assertFalse(controller.isItemRelevant(url1, name, item));
+        Date date = new java.util.Date();
+        Product product = new Product(url1,
+                45,
+                "DKK",
+                "dba",
+                name,
+                item,
+                new Timestamp(date.getTime()));
+        when(productDao.isIdInDb(url1)).thenReturn(true);
+        assertFalse(controller.isItemRelevant(product, item));
     }
 
     @Test
     public void isItemRelevant_returns_true_if_name_is_null_and_url_is_relevant(){
         String item = "url";
+        String name = "name";
         String url1 = "url1";
-        assertTrue(controller.isItemRelevant(url1, null, item));
+        Date date = new java.util.Date();
+        Product product = new Product(url1,
+                45,
+                "DKK",
+                "dba",
+                name,
+                item,
+                new Timestamp(date.getTime()));
+        assertTrue(controller.isItemRelevant(product, item));
     }
 }

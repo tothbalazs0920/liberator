@@ -7,37 +7,27 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans
     http://www.springframework.org/schema/beans/spring-beans-3.0.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd">
 
-
      <context:component-scan base-package="productfinder"/>
 
      <!-- Initialization for data source -->
 
-
     <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
         <property name="driverClassName" value="org.postgresql.Driver"/>
         <property name="url" value="jdbc:postgresql://localhost:5432/productdb"/>
-        <property name="username" value="nagarjuna"/>
-        <property name="password" value="sunyata"/>
+        <property name="username" value=""/>
+        <property name="password" value=""/>
     </bean>
 
     <!-- Initialization of data tables -->
-
-    <jdbc:initialize-database data-source="dataSource" ignore-failures="ALL">
-        <jdbc:script location="classpath:schema.sql"/>
-    </jdbc:initialize-database>
-
-    <!-- Definitions for DAO -->
+    <!--
+        <jdbc:initialize-database data-source="dataSource" ignore-failures="ALL">
+            <jdbc:script location="classpath:schema.sql"/>
+        </jdbc:initialize-database>
+    -->
+        <!-- Definition for DAO -->
     <bean id="jdbcTemplateObject"
           class="org.springframework.jdbc.core.JdbcTemplate">
         <property name="dataSource" ref="dataSource"/>
-    </bean>
-
-    <bean id="productDao"
-          class="productfinder.dao.ProductDao">
-    </bean>
-
-    <bean id="productMapper"
-          class="productfinder.dao.ProductMapper">
     </bean>
 
 </beans>

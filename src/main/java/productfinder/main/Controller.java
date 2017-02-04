@@ -1,17 +1,14 @@
-package productfinder.liberator;
+package productfinder.main;
 
 import productfinder.dao.Product;
 import productfinder.dao.ProductDao;
 import productfinder.mail.Mail;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.springframework.stereotype.Component;
 import productfinder.scraper.Listing;
 import productfinder.scraper.Scraper;
 
-import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Date;
 
@@ -26,15 +23,6 @@ public class Controller {
         this.scraper = scraper;
         this.mail = mail;
         this.productDao = productDao;
-    }
-
-    public Document connect(String url, String item) {
-        try {
-            return Jsoup.connect(url + item).get();
-        } catch (IOException ex) {
-            System.out.println(ex.getMessage());
-            return null;
-        }
     }
 
     public int process(Document doc, String item, double threshold) {
@@ -68,42 +56,37 @@ public class Controller {
                     price = scraper.getPrice(dbaListing);
                 }
             }
+            Date date = new java.util.Date();
+            Product product = new Product(url,
+                    price,
+                    "DKK",
+                    "dba",
+                    name,
+                    item,
+                    new Timestamp(date.getTime()));
             if (url == null) {
                 continue;
             }
-            if (!isItemRelevant(url, name, item)) {
+            if (!isItemRelevant(product, item)) {
                 continue;
             }
             if (price > threshold) {
                 continue;
             }
-//            productfinder.mail.sendMail("dba: " + url, " " +
-//                    url + " " + "price: " +
-//                    price + "description: " + name);
-            System.out.println("Send sms with " + url);
+            mail.sendMail("dba: " + url, " " +
+                    url + " " + "price: " +
+                    price + " description: " + name);
             count++;
         }
         return count;
     }
 
-    void saveToDb(String url, String item) {
-
-
-    }
-
-    public boolean isItemRelevant(String url, String name, String item) {
-        Date date = new java.util.Date();
-        Product product = new Product(url,45,
-                "DKK",
-                "dba",
-                name,
-                item, new Timestamp(date.getTime()));
-        productDao.create(product);
-        if (/*!checkedItems.contains(url) && */(url.contains(item) || name.contains(item))) {
-            saveToDb(url, item);
+    public boolean isItemRelevant(Product product, String item) {
+        if ((product.getID().contains(item) ||
+                product.getDescription().contains(item)) && !productDao.isIdInDb(product.getID())) {
+            productDao.create(product);
             return true;
         }
-        saveToDb(url, item);
         return false;
     }
 }

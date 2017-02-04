@@ -7,6 +7,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import productfinder.dao.Product;
+import productfinder.network.UserAgents;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -14,21 +16,6 @@ import java.util.Set;
 
 
 public class Scraper {
-
-    private final Set<String> checkedItems;
-
-    public Scraper() {
-        this.checkedItems = new HashSet<String>();
-    }
-
-    public Document connect(String url, String item) {
-        try {
-            return Jsoup.connect(url + item).get();
-        } catch (IOException ex) {
-            System.out.println(ex.getMessage());
-            return null;
-        }
-    }
 
     public Elements getDbaListings(Document doc) {
         if (doc.getElementsByClass("dbaListing") != null) {
