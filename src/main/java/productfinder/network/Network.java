@@ -3,14 +3,16 @@ package productfinder.network;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import java.io.IOException;
+import java.util.Random;
 
 public class Network {
-    final static String DIR = "c:\\Program Files\\pia_manager\\";
-    final static String SHUT_DOWN = DIR + "taskkill /F /IM pia_manager.exe /T";
-    final static String START = DIR + "pia_manager.exe";
+    final static String DIR = "/etc/openvpn/";//"c:\\Program Files\\pia_manager\\";
+    final static String SHUT_DOWN = DIR + "sudo killall openvpn";//"taskkill /F /IM pia_manager.exe /T";
+    final static String START = DIR + "sudo openvpn"; //"pia_manager.exe";
+    private String[] servers = {"Romania.ovpn", "Denmark.ovpn", "Norway.ovpn", "Switzerland.ovpn"};
 
     public void startVpn() {
-        executeCommand(START);
+        executeCommand(START + " " + servers[new Random().nextInt(4)]);
     }
 
     public void shutDownVpn() {
