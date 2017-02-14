@@ -23,8 +23,7 @@ public class Main {
         Scraper scraper = new Scraper();
         Mail mailSender = new Mail(properties);
         ProductDao productDao = applicationContext.getBean(ProductDao.class);
-        Controller controller = new Controller(scra
-                per, mailSender, productDao);
+        Controller controller = new Controller(scraper, mailSender, productDao);
         Network network = new Network();
         while (1 == 1) {
             network.startVpn();
@@ -38,10 +37,7 @@ public class Main {
 
     public static void Sleep(int millis) {
         try {
-            Thread.sleep(
-
-
-                    millis);
+            Thread.sleep(millis);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
