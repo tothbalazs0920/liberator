@@ -9,32 +9,32 @@ import java.util.Properties;
 
 public class Mail {
 
-    private PropertiesMap properties;
+    private PropertiesMap propertiesMap;
 
-    public Mail(PropertiesMap properties) {
-        this.properties = properties;
+    public Mail(PropertiesMap propertiesMap) {
+        this.propertiesMap = propertiesMap;
     }
 
     public void sendMail(String subject, String body) {
         Properties props = new Properties();
-        props.put("productfinder.mail.smtp.host", "smtp.gmail.com");
-        props.put("productfinder.mail.smtp.socketFactory.port", "465");
-        props.put("productfinder.mail.smtp.socketFactory.class",
+        props.put("mail.smtp.host", "smtp.gmail.com");
+        props.put("mail.smtp.socketFactory.port", "465");
+        props.put("mail.smtp.socketFactory.class",
                 "javax.net.ssl.SSLSocketFactory");
-        props.put("productfinder.mail.smtp.auth", "true");
-        props.put("productfinder.mail.smtp.port", "587");
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.port", "587");
 
         Session session = Session.getDefaultInstance(props,
                 new Authenticator() {
                     protected PasswordAuthentication getPasswordAuthentication() {
-                        return new PasswordAuthentication(properties.get("fromEmail"), properties.get("password"));
+                        return new PasswordAuthentication(propertiesMap.get("fromEmail"), propertiesMap.get("password"));
                     }
                 });
         try {
             Message message = new MimeMessage(session);
-            message.setFrom(new InternetAddress(properties.get("fromEmail")));
+            message.setFrom(new InternetAddress(propertiesMap.get("fromEmail")));
             message.setRecipients(Message.RecipientType.TO,
-                    InternetAddress.parse(properties.get("toEmail")));
+                    InternetAddress.parse(propertiesMap.get("toEmail")));
             message.setSubject(subject);
             message.setText(body);
             Transport.send(message);
