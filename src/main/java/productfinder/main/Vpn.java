@@ -7,15 +7,15 @@ public class Vpn {
     public static void main(String[] args) {
         Network network = new Network();
         network.startVpn();
-        System.out.println("Connecting to to vpn");
+        System.out.println("Connecting to vpn");
         Sleep(15000);
         network.shutDownVpn();
-        System.out.println("Shutting down to vpn");
-        Sleep(15000);
+        System.out.println("Shutting down vpn");
         network.startVpn();
+        Sleep(15000);
         System.out.println("Connecting to another vpn");
         network.shutDownVpn();
-        System.out.println("Shutting down to vpn");
+        System.out.println("Shutting down vpn");
     }
 
     public static void Sleep(int millis) {

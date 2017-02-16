@@ -6,20 +6,21 @@ import java.io.IOException;
 import java.util.Random;
 
 public class Network {
-    final static String DIR = "/etc/openvpn/";//"c:\\Program Files\\pia_manager\\";
-    final static String SHUT_DOWN = DIR + "sudo killall openvpn";//"taskkill /F /IM pia_manager.exe /T";
-    final static String START = DIR + "sudo openvpn"; //"pia_manager.exe";
+
     private String[] servers = {"Romania.ovpn", "Denmark.ovpn", "Norway.ovpn", "Switzerland.ovpn"};
 
     public void startVpn() {
-        executeCommand(START + " " + servers[new Random().nextInt(4)]);
+        String[] command = { "sudo", "openvpn", "/etc/openvpn/" + servers[new Random().nextInt(4)] };
+        System.out.println(command);
+        executeCommand(command);
     }
 
     public void shutDownVpn() {
-        executeCommand(SHUT_DOWN);
+        String[] command = { "sudo", "killall", "openvpn" };
+        executeCommand(command);
     }
 
-    private void executeCommand(String command) {
+    private void executeCommand(String[] command) {
         try {
             Runtime.getRuntime().exec(command);
         } catch (IOException e) {
